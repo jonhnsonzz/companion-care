@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陪诊守护 - 让子女安心</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f5f7fa; color: #333; line-height: 1.6; }
+        
+        /* 头部 */
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 20px; text-align: center; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header p { font-size: 1.2em; opacity: 0.9; }
+        .header .tagline { margin-top: 15px; font-size: 1em; opacity: 0.8; }
+        
+        /* 标签切换 */
+        .tabs { display: flex; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+        .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; }
+        .tab.active { border-bottom-color: #667eea; color: #667eea; font-weight: 600; }
+        
+        /* 内容区 */
+        .content { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .section { display: none; }
+        .section.active { display: block; }
+        
+        /* 卡片 */
+        .card { background: white; border-radius: 16px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        .card h3 { font-size: 1.1em; color: #667eea; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .card h3::before { content: '◆'; font-size: 0.8em; }
+        
+        /* 表单 */
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 0.9em; color: #666; margin-bottom: 6px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 1em; transition: border-color 0.3s; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #667eea; }
+        
+        /* 按钮 */
+        .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 1em; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-secondary { background: #f0f0f0; color: #666; }
+        .btn-secondary:hover { background: #e0e0e0; box-shadow: none; }
+        
+        /* 档案列表 */
+        .profile-item { background: #f9f9f9; border-radius: 12px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent; }
+        .profile-item:hover { border-color: #667eea; }
+        .profile-item.selected { border-color: #667eea; background: #f0f4ff; }
+        .profile-item .name { font-weight: 600; font-size: 1.1em; margin-bottom: 4px; }
+        .profile-item .info { font-size: 0.85em; color: #888; }
+        .profile-item .disease-tag { display: inline-block; background: #667eea; color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.75em; margin-top: 8px; }
+        
+        /* 订单卡片 */
+        .order-card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; border-left: 4px solid #667eea; }
+        .order-card .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .order-card .hospital { font-weight: 600; font-size: 1.05em; }
+        .order-card .status { font-size: 0.75em; padding: 3px 10px; border-radius: 20px; }
+        .status-matched { background: #e3f2fd; color: #1976d2; }
+        .status-confirmed { background: #fff3e0; color: #f57c00; }
+        .status-in-progress { background: #e8f5e9; color: #388e3c; }
+        .status-completed { background: #f5f5f5; color: #666; }
+        .order-card .order-detail { font-size: 0.9em; color: #666; margin-bottom: 8px; }
+        .order-card .companion { display: flex; align-items: center; gap: 10px; padding: 10px; background: #f9f9f9; border-radius: 8px; margin-top: 10px; }
+        .order-card .companion-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .order-card .companion-info .name { font-weight: 600; }
+        .order-card .companion-info .rating { font-size: 0.85em; color: #f5a623; }
+        
+        /* 复诊提醒 */
+        .reminder-card { background: linear-gradient(135deg, #667eea22 0%, #764ba222 100%); border-radius: 16px; padding: 20px; border: 1px solid #667eea44; }
+        .reminder-card .date { font-size: 1.8em; font-weight: 700; color: #667eea; margin-bottom: 8px; }
+        .reminder-card .check-items { color: #666; margin: 10px 0; }
+        .reminder-card .ai-msg { background: white; padding: 12px; border-radius: 10px; margin-top: 12px; font-size: 0.9em; color: #555; border-left: 3px solid #667eea; }
+        
+        /* 步骤指示 */
+        .steps { display: flex; justify-content: space-between; margin-bottom: 30px; position: relative; }
+        .steps::before { content: ''; position: absolute; top: 15px; left: 10%; right: 10%; height: 2px; background: #e0e0e0; z-index: 0; }
+        .step { text-align: center; z-index: 1; flex: 1; }
+        .step-num { width: 30px; height: 30px; border-radius: 50%; background: #e0e0e0; color: white; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; margin-bottom: 8px; }
+        .step.active .step-num { background: #667eea; }
+        .step.done .step-num { background: #4caf50; }
+        .step-label { font-size: 0.8em; color: #888; }
+        .step.active .step-label { color: #667eea; font-weight: 600; }
+        
+        /* 评价标签 */
+        .rating-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .rating-tag { padding: 6px 12px; border-radius: 20px; font-size: 0.85em; cursor: pointer; border: 1px solid #e0e0e0; transition: all 0.2s; }
+        .rating-tag:hover { border-color: #667eea; background: #f0f4ff; }
+        .rating-tag.selected { background: #667eea; color: white; border-color: #667eea; }
+        
+        /* 空状态 */
+        .empty { text-align: center; padding: 40px; color: #999; }
+        .empty-icon { font-size: 3em; margin-bottom: 10px; }
+        
+        /* Toast */
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 24px; border-radius: 8px; font-size: 0.9em; opacity: 0; transition: opacity 0.3s; z-index: 1000; }
+        .toast.show { opacity: 1; }
+        
+        /* 响应式 */
+        @media (max-width: 480px) {
+            .header h1 { font-size: 1.8em; }
+            .content { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 头部 -->
+<div class="header">
+    <h1>🏥 陪诊守护</h1>
+    <p>你在1000公里外，妈妈在老家生病了</p>
+    <div class="tagline">让子女安心，不是跑腿服务</div>
+</div>
+
+<!-- 标签页 -->
+<div class="tabs">
+    <div class="tab active" data-tab="booking">预约陪诊</div>
+    <div class="tab" data-tab="records">我的档案</div>
+    <div class="tab" data-tab="orders">我的订单</div>
+    <div class="tab" data-tab="reminder">复诊提醒</div>
+</div>
+
+<!-- 内容区 -->
+<div class="content">
+    
+    <!-- 预约陪诊 -->
+    <div id="booking" class="section active">
+        
+        <!-- 步骤指示 -->
+        <div class="steps" style="margin-top: 20px;">
+            <div class="step active" id="step1">
+                <div class="step-num">1</div>
+                <div class="step-label">选择档案</div>
+            </div>
+            <div class="step" id="step2">
+                <div class="step-num">2</div>
+                <div class="step-label">选择医院</div>
+            </div>
+            <div class="step" id="step3">
+                <div class="step-num">3</div>
+                <div class="step-label">确认下单</div>
+            </div>
+        </div>
+        
+        <!-- 步骤1: 选择档案 -->
+        <div class="card" id="step1-content">
+            <h3>选择就诊老人</h3>
+            <div id="profile-list">
+                <div class="empty">
+                    <div class="empty-icon">📋</div>
+                    <p>暂无健康档案</p>
+                    <p style="font-size: 0.85em;">请先创建老人健康档案</p>
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="showCreateProfile()" style="margin-top: 12px;">+ 创建新档案</button>
+        </div>
+        
+        <!-- 创建档案表单 -->
+        <div class="card" id="create-profile-form" style="display: none;">
+            <h3>创建老人健康档案</h3>
+            <div class="form-group">
+                <label>老人姓名 *</label>
+                <input type="text" id="elderly-name" placeholder="请输入老人姓名">
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>年龄 *</label>
+                    <input type="number" id="elderly-age" placeholder="年龄">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>性别</label>
+                    <select id="elderly-gender">
+                        <option value="">请选择</option>
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>主要疾病/就诊目的 *</label>
+                <select id="elderly-disease">
+                    <option value="">请选择</option>
+                    <option value="糖尿病复查">糖尿病复查</option>
+                    <option value="高血压复查">高血压复查</option>
+                    <option value="心脑血管复查">心脑血管复查</option>
+                    <option value="肿瘤复查">肿瘤复查</option>
+                    <option value="常规体检">常规体检</option>
+                    <option value="其他">其他就诊</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>常用药物</label>
+                <input type="text" id="elderly-medications" placeholder="如：二甲双胍 每日2次">
+            </div>
+            <div class="form-group">
+                <label>过敏史</label>
+                <input type="text" id="elderly-allergies" placeholder="如：无 / 青霉素过敏">
+            </div>
+            <div class="form-group">
+                <label>特殊情况备注</label>
+                <textarea id="elderly-notes" rows="2" placeholder="如：膝盖不好，走路慢；老年痴呆前期"></textarea>
+            </div>
+            <div class="form-group">
+                <label>您的姓名（子女）*</label>
+                <input type="text" id="child-name" placeholder="请输入您的姓名">
+            </div>
+            <div class="form-group">
+                <label>您的联系电话 *</label>
+                <input type="tel" id="child-phone" placeholder="请输入您的手机号">
+            </div>
+            <button class="btn" onclick="createProfile()">保存档案</button>
+            <button class="btn btn-secondary" onclick="hideCreateProfile()" style="margin-top: 10px;">取消</button>
+        </div>
+        
+        <!-- 步骤2: 选择医院 -->
+        <div class="card" id="step2-content" style="display: none;">
+            <h3>选择就诊医院和科室</h3>
+            <div class="form-group">
+                <label>选择医院 *</label>
+                <select id="hospital-select">
+                    <option value="">请选择医院</option>
+                    <option value="华西医院">华西医院（三甲）</option>
+                    <option value="四川省人民医院">四川省人民医院（三甲）</option>
+                    <option value="成都市第一人民医院">成都市第一人民医院（三甲）</option>
+                    <option value="其他">其他医院</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>选择科室 *</label>
+                <select id="department-select">
+                    <option value="">请选择科室</option>
+                    <option value="内分泌科">内分泌科</option>
+                    <option value="心内科">心内科</option>
+                    <option value="神经内科">神经内科</option>
+                    <option value="肿瘤科">肿瘤科</option>
+                    <option value="消化内科">消化内科</option>
+                    <option value="呼吸内科">呼吸内科</option>
+                    <option value="骨科">骨科</option>
+                    <option value="眼科">眼科</option>
+                    <option value="其他">其他科室</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>预约日期</label>
+                <input type="date" id="appointment-date">
+            </div>
+            <div class="form-group">
+                <label>服务类型</label>
+                <select id="service-type">
+                    <option value="普通陪诊">普通陪诊（400元）</option>
+                    <option value="慢病复查">慢病复查（450元）</option>
+                    <option value="肿瘤专科">肿瘤专科（800元）</option>
+                </select>
+            </div>
+            <button class="btn" onclick="goToStep3()">下一步</button>
+            <button class="btn btn-secondary" onclick="backToStep1()" style="margin-top: 10px;">上一步</button>
+        </div>
+        
+        <!-- 步骤3: 确认下单 -->
+        <div class="card" id="step3-content" style="display: none;">
+            <h3>确认订单信息</h3>
+            <div style="background: #f9f9f9; padding: 16px; border-radius: 12px; margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: #888;">就诊老人</span>
+                    <span id="confirm-elderly" style="font-weight: 600;">-</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: #888;">医院科室</span>
+                    <span id="confirm-hospital" style="font-weight: 600;">-</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: #888;">预约日期</span>
+                    <span id="confirm-date" style="font-weight: 600;">-</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: #888;">服务类型</span>
+                    <span id="confirm-service" style="font-weight: 600;">-</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: #888;">陪诊费用</span>
+                    <span id="confirm-fee" style="font-weight: 600; color: #667eea;">-</span>
+                </div>
+            </div>
+            
+            <div style="background: #e8f5e9; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 0.9em;">
+                ✅ 包含服务：挂号/候诊/陪诊检查/取药/记录医嘱<br>
+                ✅ 职业责任险：已覆盖<br>
+                ✅ 免责协议：下单即确认
+            </div>
+            
+            <button class="btn" onclick="submitOrder()" id="submit-btn">确认下单</button>
+            <button class="btn btn-secondary" onclick="backToStep2()" style="margin-top: 10px;">上一步</button>
+        </div>
+        
+        <!-- 匹配结果 -->
+        <div class="card" id="match-result" style="display: none;">
+            <h3>🎉 匹配成功</h3>
+            <div class="companion" style="margin-top: 12px;">
+                <div class="companion-avatar" id="match-avatar">-</div>
+                <div class="companion-info">
+                    <div class="name" id="match-name">-</div>
+                    <div class="rating" id="match-rating">-</div>
+                </div>
+            </div>
+            <div style="margin-top: 16px; padding: 12px; background: #f9f9f9; border-radius: 8px; font-size: 0.9em;">
+                <p>📱 陪诊师将电话联系您确认就诊细节</p>
+                <p style="margin-top: 8px;">⏰ 请保持手机畅通</p>
+            </div>
+            <button class="btn" onclick="switchTab('orders')" style="margin-top: 16px;">查看订单</button>
+        </div>
+        
+    </div>
+    
+    <!-- 我的档案 -->
+    <div id="records" class="section">
+        <div class="card">
+            <h3>老人健康档案</h3>
+            <div id="my-profiles">
+                <div class="empty">
+                    <div class="empty-icon">📋</div>
+                    <p>暂无档案</p>
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="showCreateProfile()" style="margin-top: 12px;">+ 创建新档案</button>
+        </div>
+    </div>
+    
+    <!-- 我的订单 -->
+    <div id="orders" class="section">
+        <div class="card">
+            <h3>陪诊订单</h3>
+            <div id="my-orders">
+                <div class="empty">
+                    <div class="empty-icon">📦</div>
+                    <p>暂无订单</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 复诊提醒 -->
+    <div id="reminder" class="section">
+        <div class="card">
+            <h3>复诊提醒</h3>
+            <div id="reminder-list">
+                <div class="empty">
+                    <div class="empty-icon">⏰</div>
+                    <p>暂无复诊提醒</p>
+                    <p style="font-size: 0.85em; color: #aaa; margin-top: 4px;">完成陪诊后会自动生成复诊提醒</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// 全局数据
+let profiles = [];
+let orders = [];
+let selectedProfileId = null;
+let selectedHospital = '';
+let selectedDepartment = '';
+let selectedDate = '';
+let selectedServiceType = '普通陪诊';
+let fee = 400;
+
+// 初始化
+document.addEventListener('DOMContentLoaded', () => {
+    loadProfiles();
+    loadOrders();
+    
+    // Tab切换
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+    });
+});
+
+function switchTab(tabId) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+    
+    if (tabId === 'reminder') loadReminders();
+}
+
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// 档案操作
+function showCreateProfile() {
+    document.getElementById('create-profile-form').style.display = 'block';
+    document.getElementById('step1-content').style.display = 'none';
+}
+
+function hideCreateProfile() {
+    document.getElementById('create-profile-form').style.display = 'none';
+    document.getElementById('step1-content').style.display = 'block';
+}
+
+async function createProfile() {
+    const name = document.getElementById('elderly-name').value.trim();
+    const age = document.getElementById('elderly-age').value;
+    const gender = document.getElementById('elderly-gender').value;
+    const disease = document.getElementById('elderly-disease').value;
+    const medications = document.getElementById('elderly-medications').value.trim();
+    const allergies = document.getElementById('elderly-allergies').value.trim();
+    const notes = document.getElementById('elderly-notes').value.trim();
+    const childName = document.getElementById('child-name').value.trim();
+    const childPhone = document.getElementById('child-phone').value.trim();
+    
+    if (!name || !age || !disease || !childName || !childPhone) {
+        showToast('请填写必填项');
+        return;
+    }
+    
+    try {
+        const res = await fetch('/api/elderly', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, age, gender, disease, medications, allergies, notes, child_name: childName, child_phone: childPhone })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            showToast('档案创建成功');
+            hideCreateProfile();
+            loadProfiles();
+            selectProfile(data.elderly.id);
+        } else {
+            showToast(data.error || '创建失败');
+        }
+    } catch (e) {
+        showToast('网络错误');
+    }
+}
+
+async function loadProfiles() {
+    try {
+        const res = await fetch('/api/elderly/list');
+        const data = await res.json();
+        profiles = data.elderly_list || [];
+        renderProfiles();
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function renderProfiles() {
+    const list1 = document.getElementById('profile-list');
+    const list2 = document.getElementById('my-profiles');
+    
+    if (profiles.length === 0) {
+        list1.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon">📋</div>
+                <p>暂无健康档案</p>
+                <p style="font-size: 0.85em;">请先创建老人健康档案</p>
+            </div>`;
+        list2.innerHTML = list1.innerHTML;
+        return;
+    }
+    
+    const html = profiles.map(p => `
+        <div class="profile-item ${selectedProfileId === p.id ? 'selected' : ''}" onclick="selectProfile('${p.id}')">
+            <div class="name">${p.name} <span style="font-size: 0.8em; color: #888;">${p.age}岁${p.gender ? p.gender : ''}</span></div>
+            <div class="info">子女：${p.child_name} | ${p.child_phone}</div>
+            <span class="disease-tag">${p.disease}</span>
+        </div>
+    `).join('');
+    
+    list1.innerHTML = html;
+    list2.innerHTML = html;
+}
+
+function selectProfile(id) {
+    selectedProfileId = id;
+    renderProfiles();
+    
+    // 如果是步骤1选中，自动进入步骤2
+    if (document.getElementById('step1-content').style.display !== 'none') {
+        goToStep2();
+    }
+}
+
+// 步骤导航
+function goToStep2() {
+    if (!selectedProfileId) {
+        showToast('请先选择就诊老人');
+        return;
+    }
+    document.getElementById('step1-content').style.display = 'none';
+    document.getElementById('step2-content').style.display = 'block';
+    document.getElementById('step1').classList.remove('active');
+    document.getElementById('step2').classList.add('active');
+}
+
+function goToStep3() {
+    selectedHospital = document.getElementById('hospital-select').value;
+    selectedDepartment = document.getElementById('department-select').value;
+    selectedDate = document.getElementById('appointment-date').value;
+    selectedServiceType = document.getElementById('service-type').value;
+    
+    if (!selectedHospital || !selectedDepartment || !selectedDate) {
+        showToast('请填写完整信息');
+        return;
+    }
+    
+    // 设置费用
+    if (selectedServiceType === '慢病复查') fee = 450;
+    else if (selectedServiceType === '肿瘤专科') fee = 800;
+    else fee = 400;
+    
+    // 填充确认信息
+    const profile = profiles.find(p => p.id === selectedProfileId);
+    document.getElementById('confirm-elderly').textContent = profile?.name || '-';
+    document.getElementById('confirm-hospital').textContent = `${selectedHospital} ${selectedDepartment}`;
+    document.getElementById('confirm-date').textContent = selectedDate;
+    document.getElementById('confirm-service').textContent = selectedServiceType;
+    document.getElementById('confirm-fee').textContent = `¥${fee}`;
+    
+    document.getElementById('step2-content').style.display = 'none';
+    document.getElementById('step3-content').style.display = 'block';
+    document.getElementById('step2').classList.remove('active');
+    document.getElementById('step3').classList.add('active');
+}
+
+function backToStep1() {
+    document.getElementById('step1-content').style.display = 'block';
+    document.getElementById('step2-content').style.display = 'none';
+    document.getElementById('step1').classList.add('active');
+    document.getElementById('step2').classList.remove('active');
+}
+
+function backToStep2() {
+    document.getElementById('step2-content').style.display = 'block';
+    document.getElementById('step3-content').style.display = 'none';
+    document.getElementById('step2').classList.add('active');
+    document.getElementById('step3').classList.remove('active');
+}
+
+async function submitOrder() {
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = '匹配中...';
+    
+    try {
+        const res = await fetch('/api/order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                elderly_id: selectedProfileId,
+                hospital: selectedHospital,
+                department: selectedDepartment,
+                appointment_date: selectedDate,
+                service_type: selectedServiceType,
+                fee: fee
+            })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            // 显示匹配结果
+            document.getElementById('step3-content').style.display = 'none';
+            document.getElementById('match-result').style.display = 'block';
+            document.getElementById('match-avatar').textContent = data.order.companion_name[0];
+            document.getElementById('match-name').textContent = data.order.companion_name;
+            document.getElementById('match-rating').textContent = `⭐ ${data.order.companion_rating} | ${data.order.companion_phone}`;
+            
+            showToast('订单创建成功');
+            loadOrders();
+        } else {
+            showToast(data.error || '下单失败');
+        }
+    } catch (e) {
+        showToast('网络错误');
+    }
+    
+    btn.disabled = false;
+    btn.textContent = '确认下单';
+}
+
+// 订单操作
+async function loadOrders() {
+    try {
+        const res = await fetch('/api/orders');
+        const data = await res.json();
+        orders = data.orders || [];
+        renderOrders();
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function renderOrders() {
+    const container = document.getElementById('my-orders');
+    
+    if (orders.length === 0) {
+        container.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon">📦</div>
+                <p>暂无订单</p>
+            </div>`;
+        return;
+    }
+    
+    const statusMap = {
+        'matched': '已匹配',
+        'confirmed': '已确认',
+        'in_progress': '服务中',
+        'completed': '已完成'
+    };
+    
+    const html = orders.map(o => `
+        <div class="order-card">
+            <div class="order-header">
+                <span class="hospital">${o.hospital} ${o.department}</span>
+                <span class="status status-${o.status}">${statusMap[o.status] || o.status}</span>
+            </div>
+            <div class="order-detail">👤 ${o.elderly_name} | 📅 ${o.appointment_date || o.created_at?.slice(0,10)} | 💰 ¥${o.fee}</div>
+            <div class="order-detail">服务类型：${o.service_type || '普通陪诊'}</div>
+            ${o.companion_name ? `
+            <div class="companion">
+                <div class="companion-avatar">${o.companion_name[0]}</div>
+                <div class="companion-info">
+                    <div class="name">${o.companion_name}</div>
+                    <div class="rating">⭐ ${o.companion_rating || 5.0}</div>
+                </div>
+            </div>` : ''}
+            ${o.status === 'completed' && o.summary ? `
+            <div style="margin-top: 12px; padding: 10px; background: #f9f9f9; border-radius: 8px; font-size: 0.85em;">
+                <strong>服务摘要：</strong>${o.summary.slice(0, 100)}...
+            </div>` : ''}
+        </div>
+    `).join('');
+    
+    container.innerHTML = html;
+}
+
+// 复诊提醒
+async function loadReminders() {
+    const container = document.getElementById('reminder-list');
+    
+    if (profiles.length === 0) {
+        container.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon">⏰</div>
+                <p>暂无复诊提醒</p>
+                <p style="font-size: 0.85em; color: #aaa;">完成陪诊后会自动生成复诊提醒</p>
+            </div>`;
+        return;
+    }
+    
+    // 对每个档案获取提醒
+    const reminders = [];
+    for (const p of profiles) {
+        try {
+            const res = await fetch(`/api/reminder/${p.id}`);
+            const data = await res.json();
+            if (data.success) {
+                reminders.push({ profile: p, reminder: data.reminder });
+            }
+        } catch (e) {}
+    }
+    
+    if (reminders.length === 0) {
+        container.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon">⏰</div>
+                <p>暂无复诊提醒</p>
+                <p style="font-size: 0.85em; color: #aaa;">完成陪诊后会自动生成复诊提醒</p>
+            </div>`;
+        return;
+    }
+    
+    const html = reminders.map(r => `
+        <div class="reminder-card" style="margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-weight: 600;">${r.profile.name}</div>
+                    <div style="font-size: 0.85em; color: #888;">${r.profile.disease}</div>
+                </div>
+                <div class="date">${r.reminder.suggested_date.slice(5)}</div>
+            </div>
+            <div class="check-items">📋 ${r.reminder.check_items}</div>
+            <div class="ai-msg">${r.reminder.ai_message}</div>
+            <button class="btn" style="margin-top: 12px; font-size: 0.9em; padding: 10px;" onclick="bookFollowup('${r.profile.id}')">立即预约</button>
+        </div>
+    `).join('');
+    
+    container.innerHTML = html;
+}
+
+function bookFollowup(profileId) {
+    selectedProfileId = profileId;
+    switchTab('booking');
+}
+</script>
+
+</body>
+</html>
