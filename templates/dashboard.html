@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - 陪诊守护</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f5f7fa; color: #333; }
+        
+        .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.5em; }
+        .header .badge { background: #667eea; padding: 6px 16px; border-radius: 20px; font-size: 0.85em; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; padding: 20px 30px; }
+        .stat-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .stat-card .label { font-size: 0.85em; color: #888; margin-bottom: 8px; }
+        .stat-card .value { font-size: 2em; font-weight: 700; color: #667eea; }
+        .stat-card .sub { font-size: 0.8em; color: #aaa; margin-top: 4px; }
+        
+        .card { background: white; border-radius: 12px; padding: 20px; margin: 0 30px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .card h3 { font-size: 1em; color: #333; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+        th { text-align: left; padding: 10px; background: #f9f9f9; color: #666; font-weight: 500; }
+        td { padding: 10px; border-bottom: 1px solid #f5f5f5; }
+        tr:hover { background: #fafafa; }
+        
+        .status { padding: 3px 10px; border-radius: 20px; font-size: 0.8em; }
+        .status-completed { background: #e8f5e9; color: #388e3c; }
+        .status-matched { background: #e3f2fd; color: #1976d2; }
+        .status-pending { background: #fff3e0; color: #f57c00; }
+        
+        .chart-placeholder { height: 200px; display: flex; align-items: center; justify-content: center; color: #ccc; background: #fafafa; border-radius: 8px; }
+        
+        .refresh-btn { padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9em; }
+        .refresh-btn:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🏥 陪诊守护 - 管理后台</h1>
+    <div>
+        <span style="font-size: 0.9em; opacity: 0.8; margin-right: 12px;">数据概览</span>
+        <button class="refresh-btn" onclick="refresh()">🔄 刷新</button>
+    </div>
+</div>
+
+<!-- 统计卡片 -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="label">累计订单</div>
+        <div class="value" id="stat-orders">-</div>
+        <div class="sub">已完成 <span id="stat-completed">-</span> 单</div>
+    </div>
+    <div class="stat-card">
+        <div class="label">总流水</div>
+        <div class="value" id="stat-revenue">-</div>
+        <div class="sub">平台抽佣 15%</div>
+    </div>
+    <div class="stat-card">
+        <div class="label">服务老人</div>
+        <div class="value" id="stat-elderly">-</div>
+        <div class="sub">健康档案数</div>
+    </div>
+    <div class="stat-card">
+        <div class="label">陪诊师</div>
+        <div class="value" id="stat-companions">-</div>
+        <div class="sub">注册数量</div>
+    </div>
+</div>
+
+<!-- 订单表格 -->
+<div class="card">
+    <h3>📦 最近订单</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>订单ID</th>
+                <th>老人</th>
+                <th>医院</th>
+                <th>陪诊师</th>
+                <th>费用</th>
+                <th>状态</th>
+                <th>创建时间</th>
+            </tr>
+        </thead>
+        <tbody id="orders-table">
+            <tr><td colspan="7" style="text-align: center; color: #aaa; padding: 30px;">加载中...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- 老人档案 -->
+<div class="card">
+    <h3>👴 老人健康档案</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>姓名</th>
+                <th>年龄</th>
+                <th>疾病</th>
+                <th>常去医院</th>
+                <th>子女</th>
+                <th>创建时间</th>
+            </tr>
+        </thead>
+        <tbody id="elderly-table">
+            <tr><td colspan="6" style="text-align: center; color: #aaa; padding: 30px;">加载中...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+async function loadStats() {
+    try {
+        const res = await fetch('/api/stats');
+        const data = await res.json();
+        
+        if (data.success) {
+            const s = data.stats;
+            document.getElementById('stat-orders').textContent = s.total_orders;
+            document.getElementById('stat-completed').textContent = s.completed_orders;
+            document.getElementById('stat-revenue').textContent = '¥' + (s.total_revenue || 0);
+            document.getElementById('stat-elderly').textContent = s.total_elderly;
+            document.getElementById('stat-companions').textContent = s.total_companions;
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function loadOrders() {
+    try {
+        const res = await fetch('/api/orders');
+        const data = await res.json();
+        
+        const orders = data.orders || [];
+        const tbody = document.getElementById('orders-table');
+        
+        if (orders.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #aaa; padding: 30px;">暂无订单</td></tr>';
+            return;
+        }
+        
+        const statusMap = {
+            'completed': '已完成',
+            'matched': '已匹配',
+            'confirmed': '已确认',
+            'in_progress': '服务中',
+            'pending': '待处理'
+        };
+        
+        tbody.innerHTML = orders.slice(0, 20).map(o => `
+            <tr>
+                <td>${o.id?.slice(0, 8) || '-'}</td>
+                <td>${o.elderly_name || '-'}</td>
+                <td>${o.hospital || '-'} ${o.department || ''}</td>
+                <td>${o.companion_name || '-'}</td>
+                <td>¥${o.fee || 0}</td>
+                <td><span class="status status-${o.status}">${statusMap[o.status] || o.status}</span></td>
+                <td>${o.created_at?.slice(0, 10) || '-'}</td>
+            </tr>
+        `).join('');
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function loadElderly() {
+    try {
+        const res = await fetch('/api/elderly/list');
+        const data = await res.json();
+        
+        const elderly = data.elderly_list || [];
+        const tbody = document.getElementById('elderly-table');
+        
+        if (elderly.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #aaa; padding: 30px;">暂无档案</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = elderly.map(e => `
+            <tr>
+                <td>${e.name || '-'}</td>
+                <td>${e.age || '-'}</td>
+                <td>${e.disease || '-'}</td>
+                <td>${e.hospital || '-'}</td>
+                <td>${e.child_name || '-'}</td>
+                <td>${e.created_at?.slice(0, 10) || '-'}</td>
+            </tr>
+        `).join('');
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function refresh() {
+    loadStats();
+    loadOrders();
+    loadElderly();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadStats();
+    loadOrders();
+    loadElderly();
+});
+</script>
+
+</body>
+</html>
