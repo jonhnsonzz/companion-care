@@ -146,3 +146,13 @@ MIT License
 ---
 
 **让1000公里外的子女，也能安心。**
+
+---
+
+## 📱 演示页面
+
+陪诊守护的在线演示页（静态landing page）在独立仓库：
+👉 **[pei-ban-shouhu](https://github.com/jonhnsonzz/pei-ban-shouhu)** — [在线演示](https://jonhnsonzz.github.io/pei-ban-shouhu/)
+
+- **companion-care** — Flask 后端应用（需部署运行）
+- **pei-ban-shouhu** — 静态演示页面（GitHub Pages 直接访问）
