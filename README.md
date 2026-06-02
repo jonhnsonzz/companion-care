@@ -1,129 +1,160 @@
-# CompanionCare 陪诊守护 🏥
+# CompanionCare — Elderly Hospital Companion Service 🏥
 
-**子女视角的陪诊服务平台**
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-> 你在1000公里外，妈妈在老家生病了。陪诊守护，让子女安心。
+**A companion service platform designed for adult children living away from their elderly parents.**
 
-CompanionCare 是一款专为异地子女设计的陪诊服务平台。不是卖跑腿服务，是卖"让子女安心"——以数据驱动的精准匹配、风控保障、和长期健康档案，构建陪诊服务的壁垒。
+> Your mom is sick back home, and you're a thousand kilometers away. CompanionCare gives you peace of mind.
 
-## ✨ 核心特点
+CompanionCare is a Flask-based backend platform purpose-built for adult children who live apart from their aging parents. It is not merely a delivery service for hospital chaperones — it sells **peace of mind**. Powered by data-driven matching, risk control guarantees, and long-term health records, CompanionCare builds a true moat in the elder companionship service market.
 
-### 💡 情感定位
-- **不是陪诊平台，是子女的"安心代理"**
-- 目标用户：异地子女（付款者）× 老年患者（使用者）
-- 核心卖点：让子女安心，不只是帮老人看病
+---
 
-### 🎯 数据驱动匹配
-- 老人健康档案（病史 + 常去医院 + 过敏药物）
-- 陪诊师能力画像（擅长科室 + 好评率 + 响应速度）
-- 医院实战攻略（各医院陪诊技巧自动积累）
+## 🔍 The Problem
 
-### 🛡️ 风控保障（行业标配）
-- 陪诊服务免责协议（白纸黑字写清服务范围）
-- 职业责任险（每次陪诊自动投保）
-- 陪诊师实名认证 + 健康证核验
+- **1000+ km away** — Adult children cannot take time off to accompany parents to hospital visits.
+- **Elderly struggle with hospitals** — Navigating registrations, consultations, payments, and pharmacy queues is overwhelming for seniors.
+- **No accountability** — Existing services lack vetting, insurance, and follow-up mechanisms.
+- **Emotional burden** — Children feel guilty and anxious, not knowing if their parents received proper care.
 
-### 🔄 复购提醒（核心壁垒）
-- AI 自动计算下次复查时间
-- 系统主动推送复诊提醒给子女
-- 陪诊师长期绑定，复购无需重新匹配
+CompanionCare bridges this gap by providing a trusted, insured, AI-enhanced companion who acts as the child's **"peace-of-mind proxy."**
 
-## 📊 产品数据
+---
 
-| 维度 | 数据 |
-|------|------|
-| 市场规模 | 1000亿+，35%年增速 |
-| 进入门槛 | 极低（无需医疗资质，<1万启动） |
-| 差异化定位 | "情感陪伴"无人占 |
-| 评分 | **8.5/10，MVP可行** |
+## ✨ Features
 
-## 🚀 快速开始
+### 🧠 Emotional Positioning
+- **Not a companion platform — your child's "peace-of-mind agent"**
+- Target users: Remote adult children (payers) × Elderly patients (users)
+- Core value proposition: Peace of mind for children, not just hospital help for seniors
 
-### 环境要求
+### 🎯 AI-Powered Data Matching
+- Elderly health profiles (medical history + frequent hospitals + drug allergies)
+- Companion skill profiles (specialty departments + ratings + response speed)
+- Crowdsourced hospital guides (automatically accumulated tips for each hospital)
+
+### 🛡️ Risk Control & Insurance
+- Legally binding companion service agreements (clear scope + disclaimers)
+- Professional liability insurance (automatically enrolled per visit)
+- Real-name verification + health certificate checks for all companions
+
+### 🔄 Smart Follow-up Reminders
+- AI automatically calculates next checkup date based on diagnosis
+- Proactive push notifications to the child's device
+- Long-term companion binding — no need to re-match for recurring visits
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
 - Python 3.8+
-- DeepSeek API Key（或其他兼容LLM）
+- DeepSeek API Key (or any compatible LLM API key)
 
-### 安装
+### Installation
 
 ```bash
-# 克隆仓库
+# Clone the repository
 git clone https://github.com/jonhnsonzz/companion-care.git
 cd companion-care
 
-# 安装依赖
+# Install dependencies
 pip install -r requirements.txt
 
-# 配置
+# Configure environment
 cp .env.example .env
-# 编辑 .env，填入 DEEPSEEK_API_KEY
+# Edit .env and fill in DEEPSEEK_API_KEY
 
-# 运行
+# Run the app
 python app.py
 ```
 
-浏览器打开 [http://localhost:5000](http://localhost:5000)
+Open [http://localhost:5000](http://localhost:5000) in your browser.
 
-## 🏗️ 项目结构
+---
+
+## 🏗️ Project Structure
 
 ```
 companion-care/
-├── app.py                 # Flask 主应用
-├── prompts.py             # AI 提示词（匹配逻辑、复诊提醒）
-├── requirements.txt       # Python 依赖
-├── .env.example           # 环境变量模板
+├── app.py                 # Flask main application
+├── prompts.py             # AI prompts (matching logic, follow-up reminders)
+├── requirements.txt       # Python dependencies
+├── .env.example           # Environment variable template
 ├── templates/
-│   ├── index.html        # 首页（子女端）
-│   ├── companion.html    # 陪诊师端
-│   └── dashboard.html     # 管理端
+│   ├── index.html        # Landing page (child-facing)
+│   ├── companion.html    # Companion-facing dashboard
+│   └── dashboard.html     # Admin dashboard
 └── data/
-    └── sample_data.json   # 示例数据
+    └── sample_data.json   # Sample/seed data
 ```
 
-## 💰 商业模式
+---
 
-| 模式 | 说明 |
-|------|------|
-| 平台抽佣 | 每单抽15-20%，陪诊师结算 |
-| 会员制（季卡/年卡） | 慢病患者专属，覆盖全年陪诊需求 |
-| 增值服务 | 肿瘤专科陪诊（800-2000元/单） |
+## 💰 Business Model
 
-## 📈 演进路线
+| Model | Description |
+|-------|-------------|
+| Platform Commission | 15–20% per order, settled with the companion |
+| Subscription (Quarterly/Annual) | Chronic disease patients — covers all visits for the period |
+| Premium Services | Oncology specialist accompaniment (¥800–2000/visit) |
+
+---
+
+## 🤖 AI Features
+
+1. **Smart Matching** — Matches the best companion based on patient history + hospital + department
+2. **Follow-up Reminders** — AI calculates next checkup date and pushes reminders to the child
+3. **Service Assistance** — Companions receive hospital-specific tips upon accepting a booking
+4. **Health Records** — Profiles are updated after each visit, continuously improving accuracy
+
+---
+
+## 📈 Product Metrics
+
+| Dimension | Data |
+|-----------|------|
+| Market Size | ¥100B+, 35% annual growth |
+| Entry Barrier | Very low (no medical license required, <¥10K startup) |
+| Differentiation | "Emotional companionship" — an unoccupied niche |
+| Viability Score | **8.5/10, MVP feasible** |
+
+---
+
+## 🗺️ Roadmap
 
 ```
-MVP (0-6月)
-  → 验证付费意愿（成都三甲医院附近5名陪诊师）
-  → 目标：月流水4万，净利润5500元
+MVP (0–6 months)
+  → Validate willingness to pay (5 companions near Chengdu top hospital)
+  → Target: ¥40K monthly revenue, ¥5.5K net profit
 
-成长期 (6-18月)
-  → 接入养老机构会员（To B）
-  → 积累300-500个老人健康档案
+Growth (6–18 months)
+  → Partner with nursing homes (B2B)
+  → Accumulate 300–500 elderly health profiles
 
-规模期 (18-36月)
-  → 申请政府养老项目（To G采购）
-  → 接入家庭医生数据系统
+Scale (18–36 months)
+  → Apply for government elderly-care procurement (B2G)
+  → Integrate with family doctor data systems
 
-生态期 (3年+)
-  → 健康保险精准推荐（数据变现）
-  → 成为空巢老人健康数据基础设施
+Ecosystem (3 years+)
+  → Precision health insurance recommendations (data monetization)
+  → Become the health data infrastructure for empty-nest seniors
 ```
 
-## 🔐 风控体系
+---
 
-| 防护 | 内容 |
-|------|------|
-| 法律文本 | 陪诊服务协议（服务范围+免责条款） |
-| 保险 | 每次陪诊自动投保职业责任险 |
-| 认证 | 陪诊师实名+健康证双重核验 |
-| 追溯 | 全程定位打卡，子女可实时查看 |
+## 🔐 Risk Control System
 
-## 🤖 AI 驱动场景
+| Protection | Details |
+|------------|---------|
+| Legal | Companion service agreement (service scope + liability disclaimers) |
+| Insurance | Professional liability insurance auto-enrolled per visit |
+| Verification | Real-name + health certificate dual-check for all companions |
+| Traceability | GPS check-in throughout the visit — children can monitor in real time |
 
-1. **智能匹配**：根据老人病史 + 医院 + 科室，匹配最擅长该领域的陪诊师
-2. **复诊提醒**：AI 自动计算下次复查时间，系统主动推送提醒给子女
-3. **服务辅助**：陪诊师接单后自动收到该医院的实战技巧（来自历史服务积累）
-4. **健康档案**：每次服务后更新老人档案，画像越来越精准
+---
 
-## 🌐 部署
+## 🌐 Deployment
 
 ### Docker
 ```dockerfile
@@ -136,23 +167,29 @@ EXPOSE 5000
 CMD ["python", "app.py"]
 ```
 
-### Railway / Render / 任意云服务器
-设置环境变量 `DEEPSEEK_API_KEY`，直接部署即可。
-
-## 📄 开源协议
-
-MIT License
+### Railway / Render / Any Cloud Server
+Set the environment variable `DEEPSEEK_API_KEY` and deploy directly.
 
 ---
 
-**让1000公里外的子女，也能安心。**
+## 📄 License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 📱 演示页面
+**Peace of mind for children a thousand kilometers away.**
 
-陪诊守护的在线演示页（静态landing page）在独立仓库：
-👉 **[pei-ban-shouhu](https://github.com/jonhnsonzz/pei-ban-shouhu)** — [在线演示](https://jonhnsonzz.github.io/pei-ban-shouhu/)
+---
 
-- **companion-care** — Flask 后端应用（需部署运行）
-- **pei-ban-shouhu** — 静态演示页面（GitHub Pages 直接访问）
+## 📱 Demo Page
+
+The static landing page for CompanionCare lives in a separate repository:
+👉 **[pei-ban-shouhu](https://github.com/jonhnsonzz/pei-ban-shouhu)** — [Live Demo](https://jonhnsonzz.github.io/pei-ban-shouhu/)
+
+- **companion-care** — Flask backend application (requires deployment)
+- **pei-ban-shouhu** — Static landing page (accessible via GitHub Pages)
+
+---
+
+[中文说明](README_CN.md)
